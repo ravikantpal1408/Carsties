@@ -1,3 +1,4 @@
+using AuctionService;
 using AuctionService.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,5 +23,14 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 
 app.MapControllers();
+
+try
+{
+    DbInitializer.InitDB(app);
+}
+catch (Exception e)
+{
+    Console.WriteLine(e);
+}
 
 app.Run();
