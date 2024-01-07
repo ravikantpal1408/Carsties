@@ -22,7 +22,6 @@ namespace AuctionService.Controllers
         [HttpGet]
         public async Task<ActionResult<List<AuctionDto>>> GetAllAuction()
         {
-
             var result = await _context.Auctions
                     .Include(x => x.Item)
                     .OrderBy(x => x.Item.Make)
@@ -33,7 +32,6 @@ namespace AuctionService.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<List<AuctionDto>>> GetAuctionById(Guid id)
         {
-
             var result = await _context.Auctions
                     .Include(x => x.Item)
                     .FirstOrDefaultAsync(x => x.Id == id);
