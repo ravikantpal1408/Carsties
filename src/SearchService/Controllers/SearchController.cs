@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MongoDB.Entities;
-using SearchService.Models;
 
-namespace SearchService.Controllers;
+namespace SearchService;
 
 [ApiController]
 [Route("api/search")]
@@ -55,5 +54,4 @@ public class SearchController : ControllerBase
             totalCount = result.TotalCount
         });
     }
-
 }
