@@ -16,5 +16,6 @@ public class MappingProfile : Profile
         CreateMap<CreateAuctionDto, Item>();
         CreateMap<CreateAuctionDto, AuctionCreated>();
         // this the work i was tend to do 
+        // production fix i have given 
     }
 }
