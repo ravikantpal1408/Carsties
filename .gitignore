@@ -397,3 +397,8 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+.idea/.idea.Carsties/.idea/encodings.xml
+.gitignore
+.idea/.idea.Carsties/.idea/projectSettingsUpdater.xml
+.idea/.idea.Carsties/.idea/vcs.xml
+.idea/.idea.Carsties/.idea/workspace.xml
