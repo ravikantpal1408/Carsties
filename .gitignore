@@ -11,6 +11,8 @@
 *.userosscache
 *.sln.docstates
 
+/// test for squash and merge 
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
