@@ -5,7 +5,7 @@ using IdentityModel;
 using IdentityService.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace IdentityService;
+namespace IdentityService.Services;
 
 public class CustomProfileService(UserManager<ApplicationUser> userManager) : IProfileService
 {
@@ -22,7 +22,6 @@ public class CustomProfileService(UserManager<ApplicationUser> userManager) : IP
         };
 
         context.IssuedClaims.AddRange(claims);
-        var test = existingClaims.FirstOrDefault(x => x.Type == JwtClaimTypes.Name);
         context.IssuedClaims.Add(existingClaims.FirstOrDefault(x => x.Type == JwtClaimTypes.Name)!);
     }
 
