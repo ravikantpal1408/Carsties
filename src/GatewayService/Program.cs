@@ -14,7 +14,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.TokenValidationParameters.NameClaimType = "username";
     });
 
-
 var app = builder.Build();
 
 app.MapReverseProxy();
