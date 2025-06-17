@@ -1,0 +1,25 @@
+# .ignore file for Next.js frontend solution
+# Ignore dependencies and build output
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Ignore environment files
+.env
+.env.*
+
+# Ignore log files
+*.log
+
+# Ignore OS and editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Ignore coverage and test output
+coverage/
+
+# Ignore public assets (if needed)
+# public/
