@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AuctionService.Data.Migrations
 {
     [DbContext(typeof(AuctionDbContext))]
-    [Migration("20241014083851_Outbox")]
+    [Migration("20250419141507_Outbox")]
     partial class Outbox
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace AuctionService.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasAnnotation("ProductVersion", "9.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -44,6 +44,7 @@ namespace AuctionService.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Seller")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int?>("SoldAmount")
@@ -73,18 +74,22 @@ namespace AuctionService.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Color")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("ImageUrl")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Make")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("Mileage")
                         .HasColumnType("integer");
 
                     b.Property<string>("Model")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("Year")
@@ -139,8 +144,6 @@ namespace AuctionService.Data.Migrations
                         .HasColumnType("bytea");
 
                     b.HasKey("Id");
-
-                    b.HasAlternateKey("MessageId", "ConsumerId");
 
                     b.HasIndex("Delivered");
 
@@ -279,9 +282,22 @@ namespace AuctionService.Data.Migrations
                     b.Navigation("Auction");
                 });
 
+            modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>
+                {
+                    b.HasOne("MassTransit.EntityFrameworkCoreIntegration.OutboxState", null)
+                        .WithMany()
+                        .HasForeignKey("OutboxId");
+
+                    b.HasOne("MassTransit.EntityFrameworkCoreIntegration.InboxState", null)
+                        .WithMany()
+                        .HasForeignKey("InboxMessageId", "InboxConsumerId")
+                        .HasPrincipalKey("MessageId", "ConsumerId");
+                });
+
             modelBuilder.Entity("AuctionService.Entities.Auction", b =>
                 {
-                    b.Navigation("Item");
+                    b.Navigation("Item")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

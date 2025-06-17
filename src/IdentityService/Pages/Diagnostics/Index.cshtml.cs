@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Authorization;
 
 namespace IdentityService.Pages.Diagnostics;
 
@@ -13,13 +13,8 @@ public class Index : PageModel
 
     public async Task<IActionResult> OnGet()
     {
-        var localAddresses = new List<string?> { "127.0.0.1", "::1", "::ffff:192.168.65.1" };
-        if (HttpContext.Connection.LocalIpAddress != null)
-        {
-            localAddresses.Add(HttpContext.Connection.LocalIpAddress.ToString());
-        }
-
-        if (!localAddresses.Contains(HttpContext.Connection.RemoteIpAddress?.ToString()))
+        //Replace with an authorization policy check
+        if (HttpContext.Connection.IsRemote())
         {
             return NotFound();
         }

@@ -12,15 +12,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AuctionService.Data.Migrations
 {
     [DbContext(typeof(AuctionDbContext))]
-    [Migration("20240106131625_intial migration")]
-    partial class intialmigration
+    [Migration("20250416092028_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasAnnotation("ProductVersion", "9.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -44,6 +44,7 @@ namespace AuctionService.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Seller")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int?>("SoldAmount")
@@ -73,18 +74,22 @@ namespace AuctionService.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Color")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("ImageUrl")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Make")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("Mileage")
                         .HasColumnType("integer");
 
                     b.Property<string>("Model")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("Year")
@@ -111,7 +116,8 @@ namespace AuctionService.Data.Migrations
 
             modelBuilder.Entity("AuctionService.Entities.Auction", b =>
                 {
-                    b.Navigation("Item");
+                    b.Navigation("Item")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

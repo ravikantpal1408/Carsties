@@ -11,25 +11,26 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddHttpClient<AuctionSvcHttpClient>().AddPolicyHandler(GetPolicy());
-builder.Services.AddMassTransit(x =>
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddHttpClient<AuctionSvcHttpClient>()
+    .AddPolicyHandler(GetRetryPolicy());
+builder.Services.AddMassTransit(x => 
 {
     x.AddConsumersFromNamespaceContaining<AuctionCreatedConsumer>();
 
     x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("search", false));
 
-    x.UsingRabbitMq((context, cfg) =>
+    x.UsingRabbitMq((context, cfg) => 
     {
-        cfg.Host(builder.Configuration["RabbitMq:Host"], "/", h =>
+        cfg.Host(builder.Configuration["RabbitMq:Host"], "/", h => 
         {
-            h.Username(builder.Configuration.GetValue("RabbitMQ:Username", "guest")!);
-            h.Password(builder.Configuration.GetValue("RabbitMQ:Password", "guest")!);
+            h.Username(builder.Configuration.GetValue("RabbitMq:Username", "guest")); 
+            h.Password(builder.Configuration.GetValue("RabbitMq:Password", "guest"));
         });
 
-        cfg.ReceiveEndpoint("search-auction-created", e =>
+        cfg.ReceiveEndpoint("search-auction-created", e => 
         {
-            e.UseMessageRetry(r => r.Interval(5, 5));
+            e.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(5)));
 
             e.ConfigureConsumer<AuctionCreatedConsumer>(context);
         });
@@ -41,24 +42,26 @@ builder.Services.AddMassTransit(x =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-
-app.UseAuthorization();
-
 app.MapControllers();
 
-try
+app.Lifetime.ApplicationStarted.Register(async () =>
 {
-    await DbInitializer.InitDb(app);
-}
-catch (Exception e)
-{
-    Console.WriteLine(e);
-}
+    try
+    {
+        await DbInitializer.InitDb(app);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error initializing database: {ex.Message}");
+    }
+});
 
 app.Run();
 
-static IAsyncPolicy<HttpResponseMessage> GetPolicy()
-    => HttpPolicyExtensions
+static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+{
+    return HttpPolicyExtensions
         .HandleTransientHttpError()
         .OrResult(msg => msg.StatusCode == HttpStatusCode.NotFound)
         .WaitAndRetryForeverAsync(_ => TimeSpan.FromSeconds(3));
+}

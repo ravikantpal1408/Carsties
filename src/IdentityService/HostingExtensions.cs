@@ -33,22 +33,15 @@ internal static class HostingExtensions
                 {
                     options.IssuerUri = "http://localhost:5001";
                 }
-
-                // see https://docs.duendesoftware.com/identityserver/v6/fundamentals/resources/
-                // options.EmitStaticAudienceClaim = true;
             })
             .AddInMemoryIdentityResources(Config.IdentityResources)
             .AddInMemoryApiScopes(Config.ApiScopes)
             .AddInMemoryClients(Config.Clients)
             .AddAspNetIdentity<ApplicationUser>()
-            .AddProfileService<CustomProfileService>();
+            .AddLicenseSummary()
+            .AddProfileService<CustomProfiileService>();
 
-        builder.Services.ConfigureApplicationCookie(options =>
-        {
-            options.Cookie.SameSite = SameSiteMode.Lax;
-        });
-
-        builder.Services.ConfigureExternalCookie(options =>
+        builder.Services.ConfigureApplicationCookie(options => 
         {
             options.Cookie.SameSite = SameSiteMode.Lax;
         });

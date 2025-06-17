@@ -1,6 +1,7 @@
 using System.Security.Claims;
+using Duende.IdentityModel;
 using IdentityService.Models;
-using IdentityService.Register;
+using IdentityService.Pages.Account.Register;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,32 +11,23 @@ namespace IdentityService.Pages.Register
 {
     [SecurityHeaders]
     [AllowAnonymous]
-    public class Index : PageModel
+    public class Index(UserManager<ApplicationUser> userManager) : PageModel
     {
-        private readonly UserManager<ApplicationUser> _userManager;
+        [BindProperty] public RegisterViewModel Input { get; set; } = default!;
+        [BindProperty] public bool RegisterSuccess { get; set; }
 
-        public Index(UserManager<ApplicationUser> userManager)
-        {
-            _userManager = userManager;
-        }
-
-        [BindProperty]
-        public RegisterViewModel Input { get; set; }
-
-        [BindProperty]
-        public bool RegisterSuccess { get; set; }
         public IActionResult OnGet(string returnUrl)
         {
-            Input = new RegisterViewModel { ReturnUrl = returnUrl };
+            Input = new RegisterViewModel
+            {
+                ReturnUrl = returnUrl
+            };
             return Page();
         }
 
         public async Task<IActionResult> OnPost()
         {
-            if (Input.Button != "register")
-            {
-                return Redirect("~/");
-            }
+            if (Input?.Button != "register") return Redirect("~/");
 
             if (ModelState.IsValid)
             {
@@ -45,18 +37,19 @@ namespace IdentityService.Pages.Register
                     Email = Input.Email,
                     EmailConfirmed = true
                 };
-                var result = await _userManager.CreateAsync(user, Input.Password);
+
+                var result = await userManager.CreateAsync(user, Input.Password!);
+
                 if (result.Succeeded)
                 {
-                    await _userManager.AddClaimsAsync(user, new Claim[]{
-                        new Claim(ClaimTypes.Name, Input.FullName)
-                    });
+                    await userManager.AddClaimsAsync(user, [
+                        new Claim(JwtClaimTypes.Name, Input.FullName!),
+                    ]);
+
                     RegisterSuccess = true;
-
                 }
-
-
             }
+
             return Page();
         }
     }

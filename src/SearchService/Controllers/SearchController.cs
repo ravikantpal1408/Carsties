@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using System;
+using Microsoft.AspNetCore.Mvc;
 using MongoDB.Entities;
 using SearchService.Models;
+using SearchService.RequestHelpers;
 
-namespace SearchService;
+namespace SearchService.Controllers;
 
 [ApiController]
 [Route("api/search")]
@@ -17,20 +19,20 @@ public class SearchController : ControllerBase
         {
             query.Match(Search.Full, searchParams.SearchTerm).SortByTextScore();
         }
-
+        
         query = searchParams.OrderBy switch
         {
             "make" => query.Sort(x => x.Ascending(a => a.Make)),
             "new" => query.Sort(x => x.Descending(a => a.CreatedAt)),
-            _ => query.Sort(x => x.Ascending(a => a.AuctionEnd))
+            _ => query.Sort(x => x.Ascending(a => a.AuctionEnd)),
         };
 
         query = searchParams.FilterBy switch
         {
             "finished" => query.Match(x => x.AuctionEnd < DateTime.UtcNow),
-            "endingSoon" => query.Match(x => x.AuctionEnd < DateTime.UtcNow.AddHours(6)
+            "endingSoon" => query.Match(x => x.AuctionEnd < DateTime.UtcNow.AddHours(6) 
                 && x.AuctionEnd > DateTime.UtcNow),
-            _ => query.Match(x => x.AuctionEnd > DateTime.UtcNow)
+            _ => query.Match(x => x.AuctionEnd > DateTime.UtcNow),
         };
 
         if (!string.IsNullOrEmpty(searchParams.Seller))
@@ -48,11 +50,11 @@ public class SearchController : ControllerBase
 
         var result = await query.ExecuteAsync();
 
-        return Ok(new
+        return Ok(new 
         {
             results = result.Results,
             pageCount = result.PageCount,
-            totalCount = result.TotalCount
+            totalCount = result.TotalCount,
         });
     }
 }

@@ -36,6 +36,22 @@ namespace AuctionService.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "OutboxState",
+                columns: table => new
+                {
+                    OutboxId = table.Column<Guid>(type: "uuid", nullable: false),
+                    LockId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "bytea", rowVersion: true, nullable: true),
+                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Delivered = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastSequenceNumber = table.Column<long>(type: "bigint", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OutboxState", x => x.OutboxId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "OutboxMessage",
                 columns: table => new
                 {
@@ -65,22 +81,16 @@ namespace AuctionService.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_OutboxMessage", x => x.SequenceNumber);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "OutboxState",
-                columns: table => new
-                {
-                    OutboxId = table.Column<Guid>(type: "uuid", nullable: false),
-                    LockId = table.Column<Guid>(type: "uuid", nullable: false),
-                    RowVersion = table.Column<byte[]>(type: "bytea", rowVersion: true, nullable: true),
-                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Delivered = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    LastSequenceNumber = table.Column<long>(type: "bigint", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OutboxState", x => x.OutboxId);
+                    table.ForeignKey(
+                        name: "FK_OutboxMessage_InboxState_InboxMessageId_InboxConsumerId",
+                        columns: x => new { x.InboxMessageId, x.InboxConsumerId },
+                        principalTable: "InboxState",
+                        principalColumns: new[] { "MessageId", "ConsumerId" });
+                    table.ForeignKey(
+                        name: "FK_OutboxMessage_OutboxState_OutboxId",
+                        column: x => x.OutboxId,
+                        principalTable: "OutboxState",
+                        principalColumn: "OutboxId");
                 });
 
             migrationBuilder.CreateIndex(
@@ -120,10 +130,10 @@ namespace AuctionService.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "InboxState");
+                name: "OutboxMessage");
 
             migrationBuilder.DropTable(
-                name: "OutboxMessage");
+                name: "InboxState");
 
             migrationBuilder.DropTable(
                 name: "OutboxState");
