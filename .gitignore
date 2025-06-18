@@ -5,7 +5,7 @@
 
 # dotenv files
 .env
-
+frontend/web-app/.next
 # User-specific files
 *.rsuser
 *.suo
@@ -482,3 +482,9 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+frontend/web-app/.next/server/app/_not-found/page_client-reference-manifest.js
+frontend/web-app/.next/trace
+frontend/web-app/.next/server/app-paths-manifest.json
+frontend/web-app/.next/app-build-manifest.json
+frontend/web-app/.next/trace
+frontend/web-app/.next/server/app-paths-manifest.json
