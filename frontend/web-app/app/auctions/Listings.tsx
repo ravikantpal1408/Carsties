@@ -1,42 +1,59 @@
-'use client'
-import React, { useEffect } from 'react'
-import AuctionCard from './AuctionCard'
-import AppPagination from '../components/AppPagination'
-import { Auction } from '@/types'
-import { getData } from '../actions/actionAuctions'
+'use client';
 
+import AuctionCard from "./AuctionCard";
+import AppPagination from "../components/AppPagination";
+import { useEffect, useState } from "react";
+import { Auction, PagedResult } from "@/types";
+import Filters from "./Filters";
+import { useShallow } from "zustand/shallow";
+import qs from "query-string";
+import EmptyFilter from "../components/EmptyFilter";
+import { useParamsStore } from "../hooks/useParamsStore";
+import { getData } from "../actions/actionAuctions";
 
 export default function Listings() {
-    const [auctions, setAuctions] = React.useState<Auction[]>([])
-    const [pageCount, setPageCount] = React.useState(0);
-    const [pageNumber, setPageNumber] = React.useState(1);
+    const [data, setData] = useState<PagedResult<Auction>>();
+    const params = useParamsStore(useShallow(state => ({
+        pageNumber: state.pageNumber,
+        pageSize: state.pageSize,
+        searchTerm: state.searchTerm,
+        orderBy: state.orderBy,
+        filterBy: state.filterBy
+    })));
+    const setParams = useParamsStore(state => state.setParams);
+    const url = qs.stringifyUrl({ url: '', query: params }, { skipEmptyString: true })
+
+    function setPageNumber(pageNumber: number) {
+        setParams({ pageNumber })
+    }
 
     useEffect(() => {
-        getData(pageNumber).then(data => {
-            setAuctions(data.results);
-            setPageCount(data.pageCount);
-        }).catch(error => {
-            console.error('Error fetching auctions:', error);
-        });
-    }, [pageNumber])
+        getData(url).then(data => {
+            setData(data)
+        })
+    }, [url]);
 
-    if (auctions.length === 0) {
-        return <h3>Loading....</h3>
-    }
+    if (!data) return <h3>Loading...</h3>
 
     return (
         <>
-            <div className='grid grid-cols-4 gap-6'>
-                {auctions && auctions.map(auction => (
-                    <AuctionCard
-                        key={auction.id}
-                        auction={auction}
-                    />
-                ))}
-            </div>
-            <div className='flex justify-center mt-4'>
-                <AppPagination pageChanged={setPageNumber} currentPage={pageNumber} pageCount={pageCount} />
-            </div>
+            <Filters />
+            {data.totalCount === 0 ? (
+                <EmptyFilter showReset />
+            ) : (
+                <>
+                    <div className="grid grid-cols-4 gap-6">
+                        {data && data.results.map(auction => (
+                            <AuctionCard key={auction.id} auction={auction} />
+                        ))}
+                    </div>
+                    <div className="flex justify-center mt-4">
+                        <AppPagination pageChanged={setPageNumber}
+                            currentPage={params.pageNumber} pageCount={data.pageCount} />
+                    </div>
+                </>
+            )}
+
         </>
 
     )
